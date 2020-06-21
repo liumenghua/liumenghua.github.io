@@ -47,7 +47,8 @@
 
 
   <script  src="/js/utils.js" ></script>
-<meta name="generator" content="Hexo 4.2.1"></head>
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="大梦的时光机器" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -222,7 +223,7 @@ view2.backgroundColor = [<span class="hljs-built_in">UIColor</span> redColor];
 <p>view1的clipsToBounds设置为YES时，view2超出view1的部分将会被剪裁，如图右，红色部分被剪掉了。</p>
 <pre><code class="hljs ini"><span class="hljs-attr">view1.clipsToBounds</span> = <span class="hljs-literal">YES</span><span class="hljs-comment">;</span></code></pre>
 
-<p><img src="https://upload-images.jianshu.io/upload_images/3738156-0f5dfaa15109edaa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" srcset="/img/loading.gif" alt="clipsToBounds"></p>
+<p><img src="https://user-gold-cdn.xitu.io/2020/6/21/172d712d53e4b5c9?w=1096&h=786&f=png&s=73015" srcset="/img/loading.gif" alt="clipsToBounds"></p>
 <p>在Apple的<a href="https://developer.apple.com/documentation/uikit/uicollectionviewdatasourceprefetching/prefetching_collection_view_data?language=objc" target="_blank" rel="noopener">Prefetching Collection View Data</a> 示例代码中就是将UICollectionView 的 clipsToBounds 设置为 NO以显示 cell 超出 UICollectionView 时的状态，来观察UICollectionViewCell的生命周期。</p>
 <h3 id="masksToBounds"><a href="#masksToBounds" class="headerlink" title="masksToBounds"></a>masksToBounds</h3><p><code>masksToBounds</code>的功能和<code>clipsToBounds</code>类似，但是<code>clipsToBounds</code>是CALayer的属性，<code>clipsToBounds</code>是UIView新的属性，<code>clipsToBounds</code>会调用<code>maskToBounds</code>方法。</p>
 <p>通常使用在设置cornerRadius不能达到圆角效果的控件上，如UIImageView、UILabel等。</p>
