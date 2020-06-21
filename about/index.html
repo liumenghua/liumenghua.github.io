@@ -17,10 +17,19 @@
   <meta name="description" content="">
   <meta name="author" content="liumenghua">
   <meta name="keywords" content="">
-  <title>大梦的时光机器</title>
+  <title>关于 - 大梦的时光机器</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
 
 
 <!-- 主题依赖的图标库，不要自行修改 -->
@@ -130,14 +139,14 @@
 </nav>
 
     <div class="view intro-2" id="background" parallax=true
-         style="background: url('/img/banner.JPG') no-repeat center center;
+         style="background: url('/img/default.png') no-repeat center center;
            background-size: cover;">
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="container text-center white-text fadeInUp">
             <span class="h2" id="subtitle">
               
-                真正了不起的程序员对自己的程序的每一个字节都了如指掌
+                关于
               
             </span>
 
@@ -156,142 +165,64 @@
         <div class="py-5" id="board"
           >
           
+            <div class="about-avatar">
+              <img src="/img/avatar.png" srcset="/img/loading.gif"
+                   class="img-fluid" alt="avatar">
+            </div>
+          
           <div class="container">
             <div class="row">
               <div class="col-12 col-md-10 m-auto">
                 
 
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2020/06/21/%E4%B8%80%E4%BA%9Btips/" target="_self">
-          <img src="/img/article_header1.jpg" srcset="/img/loading.gif" alt="一些tips">
-        </a>
-      </div>
-    
-    <div class="col-12 col-md-8 mx-auto index-info">
-      <a class="index-header" href="/2020/06/21/%E4%B8%80%E4%BA%9Btips/">一些tips</a>
-
-      <a href="/2020/06/21/%E4%B8%80%E4%BA%9Btips/" class="index-excerpt">
+<div class="text-center">
+  <div class="about-info">
+    <div class="about-name">myname</div>
+    <div class="about-intro">一句简短的介绍</div>
+    <div class="about-icons">
+      
         
         
+        
+        <a href="https://github.com" class="
+           hint--bottom hint--rounded"
+           aria-label=GitHub
+        >
+          <i class="iconfont icon-github-fill" aria-hidden="true"></i>
           
-        
-        <div>几个iOS开发的小tipsclipsToBounds vs masksToBoundsclipsToBoundsclipsToBounds 决定子视图的显示范围：设置为YES时，子视图超出部分将被剪裁，不会显示；设置为NO则不会剪裁。clipsToBounds的默认值为NO，但是在UIScrollview中为YES。
-比如view2添加到view1上，即view2为view1的subview。
-U</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2020-06-21
-          </div>
+        </a>
+      
         
         
         
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/iOS/">iOS</a>
-            
-          </div>
+        <a href="https://douban.com" class="
+           hint--bottom hint--rounded"
+           aria-label=豆瓣
+        >
+          <i class="iconfont icon-douban-fill" aria-hidden="true"></i>
+          
+        </a>
+      
         
-      </div>
+        
+        
+        <a href="javascript:;" class="qr-trigger
+           "
+           
+        >
+          <i class="iconfont icon-wechat-fill" aria-hidden="true"></i>
+          
+            <img class="qr-img" src="/img/favicon.png" srcset="/img/loading.gif" alt="qrcode" />
+          
+        </a>
+      
     </div>
   </div>
+</div>
+<div class="mt-5 markdown-body">
+  <p>iOS Devloper</p>
 
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2019/04/19/%E6%8E%A2%E7%B4%A2iOS%E4%B8%ADBlock%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" target="_self">
-          <img src="/img/article_header2.jpg" srcset="/img/loading.gif" alt="探索iOS中Block的实现原理">
-        </a>
-      </div>
-    
-    <div class="col-12 col-md-8 mx-auto index-info">
-      <a class="index-header" href="/2019/04/19/%E6%8E%A2%E7%B4%A2iOS%E4%B8%ADBlock%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/">探索iOS中Block的实现原理</a>
-
-      <a href="/2019/04/19/%E6%8E%A2%E7%B4%A2iOS%E4%B8%ADBlock%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" class="index-excerpt">
-        
-        
-          
-        
-        <div>Block作为Objective-C中闭包的实现在iOS开发中占有非常重要的地位，尤其是作为回调（callback）使用。这篇文章主要记录Block的实现，关于Block的语法可以参考这里：How Do I Declare A Block in Objective-C
-Block的实质Block被称为带有自动变量（局部变量）的匿名函数，Block语法去和C语言的函数非常相似。实际上Block的底层</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-04-19
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/iOS/">iOS</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2018/05/17/%E8%B0%88%E8%B0%88Objective-C%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D/" target="_self">
-          <img src="/img/article_header3.png" srcset="/img/loading.gif" alt="谈谈Objective-C的对象拷贝">
-        </a>
-      </div>
-    
-    <div class="col-12 col-md-8 mx-auto index-info">
-      <a class="index-header" href="/2018/05/17/%E8%B0%88%E8%B0%88Objective-C%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D/">谈谈Objective-C的对象拷贝</a>
-
-      <a href="/2018/05/17/%E8%B0%88%E8%B0%88Objective-C%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D/" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-通常我们在使用@property声明属性的时候，对于NSString、NSArray、 NSDictionary经常会使用copy，以及block的时候也会使用copy，接下来就是和所说copy和mutableCopy。先来思考几个问题：
-
-
-copy与mutableCopy有什么区别？
-使用copy/mutableCopy和直接赋值有什么区别？
-深浅拷贝的区别？
-自定义对象如何实现NSCopy</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2018-05-17
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/iOS/">iOS</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-
-
-
+</div>
 
               </div>
             </div>
@@ -378,6 +309,21 @@ copy与mutableCopy有什么区别？
 
 
 
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
 
 
 

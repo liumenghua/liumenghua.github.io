@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="liumenghua">
+  <meta name="keywords" content="">
+  <title>探索iOS中Block的实现原理 - 大梦的时光机器</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 40vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>大梦的时光机器</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/banner.JPG') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+                探索iOS中Block的实现原理
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-04-19 17:47">
+      2019年4月19日 下午
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      66
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p>Block作为Objective-C中闭包的实现在iOS开发中占有非常重要的地位，尤其是作为回调（callback）使用。这篇文章主要记录Block的实现，关于Block的语法可以参考这里：<a href="http://fuckingblocksyntax.com/" target="_blank" rel="noopener">How Do I Declare A Block in Objective-C</a></p>
+<h1 id="Block的实质"><a href="#Block的实质" class="headerlink" title="Block的实质"></a>Block的实质</h1><p>Block被称为<strong>带有自动变量（局部变量）的匿名函数</strong>，Block语法去和C语言的函数非常相似。实际上Block的底层就是作为C语言源代码来处理的，支持Block的编译器会将含有Block语法的源代码转换为C语言编译器能处理的源代码，当作C语言源码来编译。</p>
+<p>通过LLVM编译器clang可以将含有Block的语法转换为C++源码：</p>
+<pre><code class="hljs coq">clang -<span class="hljs-built_in">rewrite</span>-objc fileName</code></pre>
+
+<p>比如一段非常简单的含有Block的代码：</p>
+<pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;
+	<span class="hljs-keyword">void</span> (^blk)(<span class="hljs-keyword">void</span>) = ^&#123;
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"Hello Block!\n"</span>);
+	&#125;;
+
+	blk();
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+
+<p>使用clang将其转换为C++源码后，其核心内容如下：</p>
+<pre><code class="hljs cpp"><span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">block_impl</span> &#123;</span>
+  	<span class="hljs-keyword">void</span> *isa;
+  	<span class="hljs-keyword">int</span> Flags;
+  	<span class="hljs-keyword">int</span> Reserved;
+  	<span class="hljs-keyword">void</span> *FuncPtr;
+&#125;;
+
+<span class="hljs-comment">// block的数据结构定义</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">main_block_impl_0</span> &#123;</span>
+  	<span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">block_impl</span> <span class="hljs-title">impl</span>;</span>
+  	<span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">main_block_desc_0</span>* <span class="hljs-title">Desc</span>;</span> 
+  	<span class="hljs-comment">// 构造函数</span>
+  	__main_block_impl_0(<span class="hljs-keyword">void</span> *fp, struct __main_block_desc_0 *desc, <span class="hljs-keyword">int</span> flags=<span class="hljs-number">0</span>) &#123;
+	    impl.isa = &amp;_NSConcreteStackBlock;
+    	impl.Flags = flags;
+    	impl.FuncPtr = fp;
+    	Desc = desc;
+  	&#125;
+&#125;;
+
+<span class="hljs-comment">// block中的方法</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> __main_block_func_0(struct __main_block_impl_0 *__cself) &#123;
+  	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"Hello Block!\n"</span>);
+&#125;
+
+<span class="hljs-comment">// block的数据描述</span>
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">main_block_desc_0</span> &#123;</span>
+  	<span class="hljs-keyword">size_t</span> reserved;
+  	<span class="hljs-keyword">size_t</span> Block_size;
+&#125; __main_block_desc_0_DATA = &#123; <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(struct __main_block_impl_0)&#125;;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;
+	<span class="hljs-comment">// 调用__main_block_impl_0的构造函数</span>
+	<span class="hljs-keyword">void</span> (*blk)(<span class="hljs-keyword">void</span>) = ((<span class="hljs-keyword">void</span> (*)())&amp;__main_block_impl_0((<span class="hljs-keyword">void</span> *)__main_block_func_0, &amp;__main_block_desc_0_DATA)); 
+
+	<span class="hljs-comment">// blk()调用</span>
+	((<span class="hljs-keyword">void</span> (*)(__block_impl *))((__block_impl *)blk)-&gt;FuncPtr)((__block_impl *)blk);
+
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+
+<p>这段源码主要包含了3个struct和两个函数，实际上就是C语言源码：</p>
+<ul>
+<li><strong>struct __block_impl</strong></li>
+<li><strong>struct __main_block_impl_0</strong></li>
+<li><strong>struct __main_block_desc_0</strong></li>
+<li><strong>static void <strong>main_block_func_0(struct __main_block_impl_0 *</strong>cself)</strong></li>
+<li><strong>int main()</strong></li>
+</ul>
+<p>很容易看出mian()函数就是最初代码中的mian函数，__main_block_func_0函数就是最初代码中的Block语法：</p>
+<pre><code class="hljs cpp">^&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"Hello Block!\n"</span>);
+&#125;;</code></pre>
+
+<p>由此得出：</p>
+<ul>
+<li><strong>通过Block使用的匿名函数实际上被当作简单的C语言函数来处理</strong></li>
+<li><strong>根据Block语法所属的函数名（此处为mian）和该Block语法在该函数出现的顺序值（此处为0）来经clang给函数命名</strong>，即（__main_block_func_0）。</li>
+<li>函数的参数<strong>__cself为指向Block值的变量</strong>，就相当于Objective-C中的self。</li>
+</ul>
+<p>接下来重点看看__main_block_impl_0结构体</p>
+<p><strong>main_block_func_0函数的参数</strong>cself类型声明为struct <strong>main_block_impl_0。</strong>main_block_impl_0就是<strong>该Block的数据结构定义</strong>，其中包含了成员变量为impl和Desc指针，impl的__block_impl结构体声明中包含了<strong>某些标志、今后版本升级所需的区域以及函数指针</strong>：</p>
+<pre><code class="hljs cpp"><span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">block_impl</span> &#123;</span>
+  	<span class="hljs-keyword">void</span> *isa; 
+  	<span class="hljs-keyword">int</span> Flags; <span class="hljs-comment">// 某些标志</span>
+  	<span class="hljs-keyword">int</span> Reserved; <span class="hljs-comment">// 今后版本升级所需的区域</span>
+  	<span class="hljs-keyword">void</span> *FuncPtr; <span class="hljs-comment">// 函数指针</span>
+&#125;;</code></pre>
+
+<p>Desc指针的中包含了<strong>Block的大小</strong>：</p>
+<pre><code class="hljs cpp"><span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">main_block_desc_0</span> &#123;</span>
+  	<span class="hljs-keyword">size_t</span> reserved; <span class="hljs-comment">// 今后版本升级所需的区域</span>
+  	<span class="hljs-keyword">size_t</span> Block_size; <span class="hljs-comment">// Block的大小</span>
+&#125;;</code></pre>
+
+<p>在__main_block_impl_0的构造函数中调用了impl和Desc的成员变量，这个构造函数在mian函数中被调用，为了便于阅读，将其中的转换去掉：</p>
+<pre><code class="hljs gcode"><span class="hljs-comment">// 调用__main_block_impl_0的构造函数</span>
+void <span class="hljs-comment">(*blk)</span><span class="hljs-comment">(void)</span> = <span class="hljs-comment">((void (*)</span><span class="hljs-comment">()</span>)&amp;__mai<span class="hljs-symbol">n_block_impl_0</span><span class="hljs-comment">((void *)</span>__mai<span class="hljs-symbol">n_block_func_0</span>, &amp;__mai<span class="hljs-symbol">n_block_desc_0</span>_DATA));
+
+<span class="hljs-comment">// 去掉转换之后</span>
+struct __mai<span class="hljs-symbol">n_block_impl_0</span> tmp = __mai<span class="hljs-symbol">n_block_impl_0</span><span class="hljs-comment">(__main_block_func_0, &amp;__main_block_desc_0_DATA)</span>;
+struct __mai<span class="hljs-symbol">n_block_func_0</span> *blk = &amp;tmp;</code></pre>
+<p>构造函数中使用的实参为函数指针<strong>main_block_func_0和静态全局变量初始化的</strong>main_block_desc_0结构体实例指针__main_block_desc_0_DATA：</p>
+<pre><code class="hljs rust"><span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_desc_0</span></span> __main_block_desc_0_DATA = &#123; 
+    <span class="hljs-number">0</span>, 
+    sizeof(<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_impl_0</span></span>)
+&#125;;</code></pre>
+
+<p>通过这些调用可以总结出下面两条：</p>
+<ul>
+<li><strong>源码将<strong>main_block_impl_0结构体类型的自动变量，即栈上生成的结构体实例指针，赋值给</strong>main_block_impl_0结构体指针类型的变量blk</strong>。</li>
+<li><strong>源码使用Block，即__main_block_impl_0结构体实例的大小，进行初始化</strong>。</li>
+</ul>
+<p>将__main_block_impl_0结构体展开：</p>
+<pre><code class="hljs cpp"><span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">main_block_impl_0</span> &#123;</span>
+  	<span class="hljs-keyword">void</span> *isa;
+  	<span class="hljs-keyword">int</span> Flags;
+  	<span class="hljs-keyword">int</span> Reserved;
+  	<span class="hljs-keyword">void</span> *FuncPtr;
+  	<span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">main_block_desc_0</span>* <span class="hljs-title">Desc</span>;</span>
+&#125;;</code></pre>
+
+<p>在该程序中构造函数的初始化数据如下：</p>
+<pre><code class="hljs ini"><span class="hljs-attr">isa</span> = &amp;_NSConcreteStackBlock<span class="hljs-comment">;</span>
+<span class="hljs-attr">Flags</span> = <span class="hljs-number">0</span><span class="hljs-comment">;</span>
+<span class="hljs-attr">Reserved</span> = <span class="hljs-number">0</span><span class="hljs-comment">;</span>
+<span class="hljs-attr">FuncPtr</span> = __main_block_func_0<span class="hljs-comment">;</span>
+<span class="hljs-attr">Desc</span> = &amp;__main_block_desc_0_DATA<span class="hljs-comment">;</span></code></pre>
+
+<p>可以看出FuncPtr = <strong>main_block_func_0就是简单的**使用函数指针FuncPtr调用函数</strong>main_block_func_0**打印Hello Block！语句，这就是最初的源码中对于block调用的实现：</p>
+<pre><code class="hljs abnf">blk()<span class="hljs-comment">;</span></code></pre>
+
+<p>其对应的源码去掉转换之后就很清晰：</p>
+<pre><code class="hljs delphi"><span class="hljs-comment">// blk()调用</span>
+((void <span class="hljs-comment">(*)(__block_impl *)</span>)((__block_impl *)blk)-&gt;FuncPtr)((__block_impl *)blk);
+<span class="hljs-comment">// 去掉转换之后:</span>
+<span class="hljs-comment">(*blk-&gt;impl.FuncPtr)(blk);</span></code></pre>
+
+<p>到此，对于Block的创建和使用就可以这样理解：</p>
+<ul>
+<li><strong>创建Block时，实际上就是声明一个struct，并且初始化该struct的成员变量。</strong></li>
+<li><strong>执行Block时，就是通过函数指针调用函数。</strong></li>
+</ul>
+<p>在__main_block_impl_0的构造函数中有一个_NSConcreteStackBlock：</p>
+<pre><code class="hljs ini"><span class="hljs-attr">impl.isa</span> = &amp;_NSConcreteStackBlock<span class="hljs-comment">;</span></code></pre>
+<p>这个isa指针很容易想到Objective-C中的isa指针。在Objective-C类和对象中，每个对象都有一个isa指针，Objective中的类最终转换为struct，类中的成员变量会被声明为结构体成员，各类的结构体是基于objc_class结构体的class_t结构体。</p>
+<pre><code class="hljs cpp"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Objc_object</span> &#123;</span>
+	Class isa;
+&#125; *id;
+
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">obje_class</span> *<span class="hljs-title">Class</span>;</span>
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">objc_class</span> &#123;</span>
+	Class isa;
+&#125;;
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">class_t</span> &#123;</span>
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">class_t</span> *<span class="hljs-title">isa</span>;</span>
+	strcut <span class="hljs-keyword">class_t</span> *superclass;
+	Cache cache;
+	IMP *vtable;
+	<span class="hljs-keyword">uintptr_t</span> data_NEVER_USE;
+&#125;;</code></pre>
+
+<p>实际上<strong>Objective-C中由类生成对象就是像结构体这样生成该类生成的对象的结构体实例。生成的各个对象（即由该生成的对象的各个结构体实例），通过成员变量isa保持该类的结构体实例指针。</strong></p>
+<p>比如一个具有成员变量valueA和valueB的TestObject类：</p>
+<pre><code class="hljs angelscript">@<span class="hljs-keyword">interface</span> <span class="hljs-symbol">TestObject</span> : <span class="hljs-symbol">NSObject</span> &#123;
+    <span class="hljs-built_in">int</span> valueA;
+    <span class="hljs-built_in">int</span> valueB;
+&#125;
+@end</code></pre>
+
+<p>其类的对象的结构体如下：</p>
+<pre><code class="hljs abnf">struct TestObject&#123;
+	Class isa<span class="hljs-comment">;</span>
+	int valueA<span class="hljs-comment">;</span>
+	int valueB<span class="hljs-comment">;</span>
+&#125;<span class="hljs-comment">;</span></code></pre>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/19/16a355b9af62e2d1?w=1384&h=454&f=png&s=54820" srcset="/img/loading.gif" alt=""></p>
+<p><strong>在Objective-C中，每个类（比如NSObject、NSMutableArray）均生成并保持各个类的class_t结构体实例。</strong>该实例持有声明的成员变量、方法名称、方法的实现（即函数指针）、属性以及父类的指针，并被Objective-C运行时库所使用。</p>
+<p>再看__main_block_impl_0结构体就相当于基于Objc_object的结构体的Objective-C类对象的结构体，其中的成员变量isa初始化为<code>isa = &amp;_NSConcreteStackBlock;</code>，<strong>_NSConcreteStackBlock就相当于calss_t结构体实例，在将Block作为Objective-C对象处理时，关于该类的信息放置于_NSConcreteStackBlock中。</strong></p>
+<p>实际上Block的实质<strong>Block就是Objective-C对象</strong>。</p>
+<h1 id="Block捕获自动变量"><a href="#Block捕获自动变量" class="headerlink" title="Block捕获自动变量"></a>Block捕获自动变量</h1><h2 id="Blocks如何捕获自动变量"><a href="#Blocks如何捕获自动变量" class="headerlink" title="Blocks如何捕获自动变量"></a>Blocks如何捕获自动变量</h2><p><strong>Block作为传统回调函数的替代方法的其中一个原因是：block允许访问局部变量，能捕获所使用的变量的值，即保存该自动变量的瞬间值</strong>，比如下面这段代码，Block中保存了局部变量mul的瞬间值7，所以后面对于mul的更改不影响Block中保存的mul值：</p>
+<pre><code class="hljs angelscript"><span class="hljs-built_in">int</span> mul = <span class="hljs-number">7</span>;
+<span class="hljs-built_in">int</span> (^blk)(<span class="hljs-built_in">int</span>) = ^(<span class="hljs-built_in">int</span> num) &#123;
+    <span class="hljs-keyword">return</span> mul * num;
+&#125;;
+
+<span class="hljs-comment">// change mul</span>
+mul = <span class="hljs-number">10</span>;
+
+<span class="hljs-built_in">int</span> res = blk(<span class="hljs-number">3</span>);
+NSLog(@<span class="hljs-string">"res:%d"</span>, res); <span class="hljs-comment">// res:21 not 30</span></code></pre>
+
+<p>通过clang来看看Block捕获自动变量之后Block的结构有什么变化：</p>
+<pre><code class="hljs cpp"><span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">main_block_impl_0</span> &#123;</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">block_impl</span> <span class="hljs-title">impl</span>;</span>
+  <span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">main_block_desc_0</span>* <span class="hljs-title">Desc</span>;</span>
+  <span class="hljs-keyword">int</span> mul; <span class="hljs-comment">// Block语法表达式中使用的自动变量被当作成员变量追加到了__main_block_impl_0结构体中</span>
+  <span class="hljs-comment">// 初始化结构体实例时，根据传递构造函数的参数对由自动变变量追加的成员变量进行初始化</span>
+  __main_block_impl_0(<span class="hljs-keyword">void</span> *fp, struct __main_block_desc_0 *desc, <span class="hljs-keyword">int</span> _mul, <span class="hljs-keyword">int</span> flags=<span class="hljs-number">0</span>) : mul(_mul) &#123;
+    impl.isa = &amp;_NSConcreteStackBlock;
+    impl.Flags = flags;
+    impl.FuncPtr = fp; 
+    Desc = desc;
+  &#125;
+&#125;;
+
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> __main_block_func_0(struct __main_block_impl_0 *__cself) &#123;
+  <span class="hljs-keyword">int</span> mul = __cself-&gt;mul; <span class="hljs-comment">// bound by copy</span>
+
+  <span class="hljs-built_in">printf</span>(<span class="hljs-string">"mul is:%d\n"</span>, mul);
+&#125;
+
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">main_block_desc_0</span> &#123;</span>
+  <span class="hljs-keyword">size_t</span> reserved;
+  <span class="hljs-keyword">size_t</span> Block_size;
+&#125; __main_block_desc_0_DATA = &#123; <span class="hljs-number">0</span>, <span class="hljs-keyword">sizeof</span>(struct __main_block_impl_0)&#125;;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;
+  <span class="hljs-keyword">int</span> mul = <span class="hljs-number">7</span>;
+  <span class="hljs-keyword">void</span> (*blk)(<span class="hljs-keyword">void</span>) = ((<span class="hljs-keyword">void</span> (*)())&amp;__main_block_impl_0((<span class="hljs-keyword">void</span> *)__main_block_func_0, &amp;__main_block_desc_0_DATA, mul));
+
+  ((<span class="hljs-keyword">void</span> (*)(__block_impl *))((__block_impl *)blk)-&gt;FuncPtr)((__block_impl *)blk);
+
+ <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+
+<p>分析<strong>main_block_impl_0和其构造方法可以发现：**Block中使用的自动变量mul被当作成员变量追加到了</strong>main_block_impl_0结构体中，并根据传递构造函数的参数对该成员变量进行初始化**。__main_block_impl_0中结构体实例的初始化如下：</p>
+<pre><code class="hljs ini"><span class="hljs-attr">impl.isa</span> = &amp;_NSConcreteStackBlock<span class="hljs-comment">;</span>
+<span class="hljs-attr">impl.Flags</span> = <span class="hljs-number">0</span><span class="hljs-comment">;</span>
+<span class="hljs-attr">impl.FuncPtr</span> = __main_block_func_0<span class="hljs-comment">;</span>
+<span class="hljs-attr">Desc</span> = &amp;__main_block_desc_0_DATA<span class="hljs-comment">;</span>
+<span class="hljs-attr">mul</span> = <span class="hljs-number">7</span><span class="hljs-comment">; // 追加的成员变量</span></code></pre>
+
+<p>由此可见，<strong>在__main_block_impl_0结构体实例（即Block）中，自动变量值被捕获。</strong>可以将Block捕获自动变量总结为如下：<strong>Block在执行语法时，Block中所使用的自动变量值被保存到Block的结构体实例（即Block自身）中</strong>。即向结构体__main_block_impl_0中追加成员变量。</p>
+<h2 id="block说明符"><a href="#block说明符" class="headerlink" title="__block说明符"></a>__block说明符</h2><p>虽然Block能捕获自动变量值，但是却不能对其进行修改，比如下面代码就会报错：</p>
+<pre><code class="hljs angelscript"><span class="hljs-built_in">int</span> main() &#123;
+	<span class="hljs-built_in">int</span> val = <span class="hljs-number">10</span>;
+	<span class="hljs-built_in">void</span>(^blk)(<span class="hljs-built_in">void</span>) = ^ &#123;
+		val = <span class="hljs-number">1</span>; <span class="hljs-comment">// error Variable is not assignable (missing __block type specifier)</span>
+	&#125;;
+	blk();
+	printf(<span class="hljs-string">"val:%d\n"</span>, val);
+	
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+
+<p>需对val变量使用__block说明符:</p>
+<pre><code class="hljs angelscript"><span class="hljs-built_in">int</span> main() &#123;
+	__block <span class="hljs-built_in">int</span> val = <span class="hljs-number">10</span>;
+	<span class="hljs-built_in">void</span>(^blk)(<span class="hljs-built_in">void</span>) = ^ &#123;
+		val = <span class="hljs-number">1</span>; 
+	&#125;;
+	blk();
+	printf(<span class="hljs-string">"val:%d\n"</span>, val); <span class="hljs-comment">// val:1</span>
+	
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+
+<p>将其用clang转换之后：</p>
+<pre><code class="hljs reasonml"><span class="hljs-keyword">struct</span> __Block_byref_val_0 &#123;
+  void *__isa;
+  __Block_byref_val_0 *__forwarding;
+  <span class="hljs-built_in">int</span> __flags;
+  <span class="hljs-built_in">int</span> __size;
+  <span class="hljs-built_in">int</span> <span class="hljs-keyword">val</span>;
+&#125;;
+
+<span class="hljs-keyword">struct</span> __main_block_impl_0 &#123;
+  <span class="hljs-keyword">struct</span> __block_impl impl;
+  <span class="hljs-keyword">struct</span> __main_block_desc_0* Desc;
+  __Block_byref_val_0 *<span class="hljs-keyword">val</span>; <span class="hljs-comment">// by ref</span>
+
+  <span class="hljs-constructor">__main_block_impl_0(<span class="hljs-params">void</span> <span class="hljs-operator">*</span><span class="hljs-params">fp</span>, <span class="hljs-params">struct</span> <span class="hljs-params">__main_block_desc_0</span> <span class="hljs-operator">*</span><span class="hljs-params">desc</span>, <span class="hljs-params">__Block_byref_val_0</span> <span class="hljs-operator">*</span><span class="hljs-params">_val</span>, <span class="hljs-params">int</span> <span class="hljs-params">flags</span>=0)</span> : <span class="hljs-keyword">val</span>(_val-&gt;__forwarding) &#123;
+    impl.isa = &amp;_NSConcreteStackBlock;
+    impl.Flags = flags;
+    impl.FuncPtr = fp;
+    Desc = desc;
+  &#125;
+&#125;;
+
+static void <span class="hljs-constructor">__main_block_func_0(<span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span> <span class="hljs-operator">*</span><span class="hljs-params">__cself</span>)</span> &#123;
+  __Block_byref_val_0 *<span class="hljs-keyword">val</span> = __cself-&gt;<span class="hljs-keyword">val</span>; <span class="hljs-comment">// bound by ref</span>
+
+  (<span class="hljs-keyword">val</span>-&gt;__forwarding-&gt;<span class="hljs-keyword">val</span>) = <span class="hljs-number">1</span>;
+ &#125;
+
+static void <span class="hljs-constructor">__main_block_copy_0(<span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span><span class="hljs-operator">*</span><span class="hljs-params">dst</span>, <span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span><span class="hljs-operator">*</span><span class="hljs-params">src</span>)</span> &#123;
+	<span class="hljs-constructor">_Block_object_assign((<span class="hljs-params">void</span><span class="hljs-operator">*</span>)</span>&amp;dst-&gt;<span class="hljs-keyword">val</span>, (void*)src-&gt;<span class="hljs-keyword">val</span>, <span class="hljs-number">8</span><span class="hljs-comment">/*BLOCK_FIELD_IS_BYREF*/</span>);
+&#125;
+
+static void <span class="hljs-constructor">__main_block_dispose_0(<span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span><span class="hljs-operator">*</span><span class="hljs-params">src</span>)</span> &#123;
+	<span class="hljs-constructor">_Block_object_dispose((<span class="hljs-params">void</span><span class="hljs-operator">*</span>)</span>src-&gt;<span class="hljs-keyword">val</span>, <span class="hljs-number">8</span><span class="hljs-comment">/*BLOCK_FIELD_IS_BYREF*/</span>);
+&#125;
+
+static <span class="hljs-keyword">struct</span> __main_block_desc_0 &#123;
+  size_t reserved;
+  size_t Block_size;
+  void (*copy)(<span class="hljs-keyword">struct</span> __main_block_impl_0*, <span class="hljs-keyword">struct</span> __main_block_impl_0*);
+  void (*dispose)(<span class="hljs-keyword">struct</span> __main_block_impl_0*);
+&#125; __main_block_desc_0_DATA = &#123; <span class="hljs-number">0</span>, sizeof(<span class="hljs-keyword">struct</span> __main_block_impl_0), __main_block_copy_0, __main_block_dispose_0&#125;;
+
+<span class="hljs-built_in">int</span> main<span class="hljs-literal">()</span> &#123;
+	<span class="hljs-comment">// __block类型的变量居然变成了结构体 __block int val = 10;</span>
+ 	<span class="hljs-constructor">__attribute__((<span class="hljs-params">__blocks__</span>(<span class="hljs-params">byref</span>)</span>)) __Block_byref_val_0 <span class="hljs-keyword">val</span> = &#123;
+ 		(void*)<span class="hljs-number">0</span>,
+ 		(__Block_byref_val_0 *)&amp;<span class="hljs-keyword">val</span>, 
+ 		<span class="hljs-number">0</span>,
+ 		sizeof(__Block_byref_val_0), 
+ 		<span class="hljs-number">10</span>
+ 	&#125;;
+
+ void(*blk)(void) = ((void (*)<span class="hljs-literal">()</span>)&amp;<span class="hljs-constructor">__main_block_impl_0((<span class="hljs-params">void</span> <span class="hljs-operator">*</span>)</span>__main_block_func_0, &amp;__main_block_desc_0_DATA, (__Block_byref_val_0 *)&amp;<span class="hljs-keyword">val</span>, <span class="hljs-number">570425344</span>));
+
+ ((void (*)(__block_impl *))((__block_impl *)blk)-&gt;FuncPtr)((__block_impl *)blk);
+
+ printf(<span class="hljs-string">"val:%d\n"</span>, (<span class="hljs-keyword">val</span>.__forwarding-&gt;<span class="hljs-keyword">val</span>));
+
+ return <span class="hljs-number">0</span>;
+&#125;</code></pre>
+<p>增加了__block变量之后源码<strong>急剧增多</strong>，最明显的是增加了一个结构体和4个函数：</p>
+<ul>
+<li>struct __main_block_impl_0</li>
+<li>static void __main_block_copy_0</li>
+<li>static void __main_block_dispose_0</li>
+<li>_Block_object_assign</li>
+<li>_Block_object_dispose</li>
+</ul>
+<p>首先比较一下使用<strong>block和没有使用</strong>block的__main_block_func_0函数对变化</p>
+<pre><code class="hljs reasonml"><span class="hljs-comment">// 没有使用__block</span>
+static void <span class="hljs-constructor">__main_block_func_0(<span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span> <span class="hljs-operator">*</span><span class="hljs-params">__cself</span>)</span> &#123;
+  <span class="hljs-built_in">int</span> mul = __cself-&gt;mul; <span class="hljs-comment">// bound by copy</span>
+
+  printf(<span class="hljs-string">"mul is:%d\n"</span>, mul);
+&#125;
+
+<span class="hljs-comment">// 使用__block</span>
+static void <span class="hljs-constructor">__main_block_func_0(<span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span> <span class="hljs-operator">*</span><span class="hljs-params">__cself</span>)</span> &#123;
+  __Block_byref_val_0 *<span class="hljs-keyword">val</span> = __cself-&gt;<span class="hljs-keyword">val</span>; <span class="hljs-comment">// bound by ref</span>
+
+  (<span class="hljs-keyword">val</span>-&gt;__forwarding-&gt;<span class="hljs-keyword">val</span>) = <span class="hljs-number">1</span>;
+ &#125;</code></pre>
+
+<p>可以看出<strong>在没有使用__block时，Block仅仅是捕获自动变量的值</strong>，即<code>int mul = __cself-&gt;mul;</code>。</p>
+<p>再看刚才的源码，<strong>使用__block变量的val居然变成了结构体实例</strong>。</p>
+<pre><code class="hljs reasonml"><span class="hljs-comment">// __block int val = 10; 转换之后的源码:</span>
+<span class="hljs-constructor">__attribute__((<span class="hljs-params">__blocks__</span>(<span class="hljs-params">byref</span>)</span>)) __Block_byref_val_0 <span class="hljs-keyword">val</span> = &#123;
+ 	<span class="hljs-number">0</span>,
+ 	&amp;<span class="hljs-keyword">val</span>, 
+    <span class="hljs-number">0</span>,
+ 	sizeof(__Block_byref_val_0), 
+ 	<span class="hljs-number">10</span>
+ &#125;;</code></pre>
+<p><strong>block变量也同Block一样变成了</strong>Block_byref_val_0结构体类型的自动变量（栈上生成的<strong>Block_byref_val_0结构体实例），该变量初始化为10，且这个值也出现在结构体实例的初始化中，表示<strong>该结构体持有相当于原有自动变量的成员变量</strong>(下面</strong>Block_byref_val_0结构体中的成员变量val就是相当于原自动变量的成员变量)：</p>
+<pre><code class="hljs cpp"><span class="hljs-class"><span class="hljs-keyword">struct</span> __<span class="hljs-title">Block_byref_val_0</span> &#123;</span>
+  <span class="hljs-keyword">void</span> *__isa;
+  __Block_byref_val_0 *__forwarding;
+  <span class="hljs-keyword">int</span> __flags;
+  <span class="hljs-keyword">int</span> __size;
+  <span class="hljs-keyword">int</span> val; <span class="hljs-comment">// 相当于原自动变量的成员变量</span>
+&#125;;</code></pre>
+
+<p>回过头去看Block给val变量赋值的代码：</p>
+<pre><code class="hljs reasonml">static void <span class="hljs-constructor">__main_block_func_0(<span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span> <span class="hljs-operator">*</span><span class="hljs-params">__cself</span>)</span> &#123;
+  __Block_byref_val_0 *<span class="hljs-keyword">val</span> = __cself-&gt;<span class="hljs-keyword">val</span>; <span class="hljs-comment">// bound by ref</span>
+
+  (<span class="hljs-keyword">val</span>-&gt;__forwarding-&gt;<span class="hljs-keyword">val</span>) = <span class="hljs-number">1</span>;
+ &#125;</code></pre>
+<p>得出：<strong><strong>Block_byref_val_0结构体实例的成员变量</strong>forwarding持有指向实例自身的指针。通过成员变量__forwarding访问成员变量val。</strong><br><img src="https://user-gold-cdn.xitu.io/2019/4/19/16a3578b052de850?w=1318&h=620&f=png&s=60351" srcset="/img/loading.gif" alt=""></p>
+<p>这里没有将<strong>block变量的</strong>Block_byref_val_0结构体直接写在Block的<strong>main_block_impl_0结构体中**是为了能在多个Block中使用同一个</strong>block变量**。 比如在两个Block中使用同一个__block变量:</p>
+<pre><code class="hljs angelscript">__block <span class="hljs-built_in">int</span> val = <span class="hljs-number">10</span>;
+<span class="hljs-built_in">void</span> (^blk1)(<span class="hljs-built_in">void</span>) = ^ &#123;
+	val = <span class="hljs-number">1</span>; 
+&#125;;
+
+<span class="hljs-built_in">void</span> (^blk2)(<span class="hljs-built_in">void</span>) = ^ &#123;
+	val = <span class="hljs-number">2</span>;
+&#125;;</code></pre>
+
+<p>转换之后:</p>
+<pre><code class="hljs reasonml">__Block_byref_val_0 <span class="hljs-keyword">val</span> = &#123;(void*)<span class="hljs-number">0</span>,(__Block_byref_val_0 *)&amp;<span class="hljs-keyword">val</span>, <span class="hljs-number">0</span>, sizeof(    __Block_byref_val_0), <span class="hljs-number">10</span>&#125;;
+
+blk1 = &amp;<span class="hljs-constructor">__main_block_impl_0(<span class="hljs-params">__main_block_func_0</span>, &amp;<span class="hljs-params">__main_block_desc_0_DATA</span>, &amp;<span class="hljs-params">val</span>, 570425344)</span>;
+
+blk2 = &amp;<span class="hljs-constructor">__main_block_impl_1(<span class="hljs-params">__main_block_func_1</span>, &amp;<span class="hljs-params">__main_block_desc_1_DATA</span>, &amp;<span class="hljs-params">val</span>, 570425344)</span>;</code></pre>
+
+<p>虽然到这里已经大致知道为什么Block能捕获自动变量了，但是这里还遗留几个问题：</p>
+<ol>
+<li><strong>Block_byref_val_0中为什么需要成员变量</strong>forwarding？</li>
+<li><strong>main_block_copy_0和</strong>main_block_dispose_0函数的作用是什么？</li>
+</ol>
+<h1 id="Block的类型"><a href="#Block的类型" class="headerlink" title="Block的类型"></a>Block的类型</h1><p>综上可知：</p>
+<ul>
+<li><strong>Block转换为Block结构体类型的自动变量</strong></li>
+<li><strong><strong>block变量转换为</strong>block变量的结构体类型的自动变量</strong></li>
+</ul>
+<p><strong>结构体类型的自动变量即栈上说生成的该结构体的实例</strong>。</p>
+<p>既然Block是Objective-C对象，那么它具体是哪种对象？在Block中的isa指针指向的就是该Block的Class，目前所见都是_NSConcreteStackBlock类型，而在block的runtime中实际定义了6中类型的Block，其中我们主要接触到的是这三种：</p>
+<ul>
+<li><strong>_NSConcreteStackBlock</strong>：创建在栈上的Block</li>
+<li><strong>_NSConcreteGlobalBlock</strong>：作为全局变量的Block</li>
+<li><strong>_NSConcreteMallocBlock</strong>：堆上创建的Block</li>
+</ul>
+<p>它们对应在程序中的内存分配：<br><img src="https://user-gold-cdn.xitu.io/2019/4/19/16a3578cd9ebf924?w=1412&h=600&f=png&s=67464" srcset="/img/loading.gif" alt=""></p>
+<p>那么Block在什么情况下时在堆上的？什么时候时栈上的？什么时候又是全局的？</p>
+<h2 id="NSConcreteGlobalBlock"><a href="#NSConcreteGlobalBlock" class="headerlink" title="_NSConcreteGlobalBlock"></a>_NSConcreteGlobalBlock</h2><p>_NSConcreteGlobalBlock很好理解，<strong>将Block当作全局变量使用的时候，生成的Block就是_NSConcreteGlobalBlock类对象</strong>。比如：</p>
+<pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+
+<span class="hljs-keyword">void</span> (^blk)(<span class="hljs-keyword">void</span>) = ^&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"Gloabl Block\n"</span>);
+&#125;;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+<p>用clang转换之后为该Block用结构体__block_impl的成员变量初始化为_NSConcreteGlobalBlock，即Block用结构体实例设置在程序内存的数据区：</p>
+<pre><code class="hljs ini"><span class="hljs-attr">isa</span> = &amp;_NSConcreteGlobalBlock<span class="hljs-comment">;</span></code></pre>
+
+<p>将全局Block存放在数据区的原为：<strong>使用全局变量的地方不能使用自动变量，所以不存在对自动变量的捕获。因此Block用结构体实例的内容不依赖于执行时的状态，所以整个程序中只需要一个实例。</strong>只有在捕获自动变量时，Block用结构体实例捕获的值才会根据执行时的状态变化。因此总结Block为_NSConcreteGlobalBlock类对象的情况如下：</p>
+<ul>
+<li><strong>Block当作全局变量使用时</strong></li>
+<li><strong>Block语法表达式中不使用应捕获的自动变量时</strong></li>
+</ul>
+<h2 id="NSConcreteStackBlock"><a href="#NSConcreteStackBlock" class="headerlink" title="_NSConcreteStackBlock"></a>_NSConcreteStackBlock</h2><p><strong>除了上述两中情况下Block配置在程序的数据区中以外，Block语法生成的Block为_NSConcreteStackBlock类对象，且设置在栈上。</strong><br>配置在栈上的Block，如果其所属的变量作用域结束，该Block就被自动废弃。</p>
+<h2 id="NSConcreteMallocBlock"><a href="#NSConcreteMallocBlock" class="headerlink" title="_NSConcreteMallocBlock"></a>_NSConcreteMallocBlock</h2><p>那么配置在堆上的_NSConcreteMallocBlock类在何时使用？</p>
+<p>配置在全局变量上的Block，从变量作用域外也可以通过指针访问。但是<strong>设置在栈上的Block，如果其所属的作用域结束，该Block就被废弃；并且<strong>block变量的也是配置在栈上的，如果其所属的变量作用域结束，则该</strong>block变量也会被废弃</strong>。那么这时需要将Block和__block变量复制到堆上，才能让其不受变量域作用结束的影响。</p>
+<p>Block提供了将Block和__block变量从栈上复制到堆上的方法。复制到堆上的Block将_NSConcreteMallocBlock类对象写入Block用结构体实例的成员变量isa:</p>
+<pre><code class="hljs ini"><span class="hljs-attr">isa</span> = &amp;_NSConcreteMallocBlock<span class="hljs-comment">;</span></code></pre>
+<p>对于堆上的<strong>block的访问，就是通过</strong>forwarding实现的：<strong><strong>block变量用结构体成员变量</strong>forwarding实现无论<strong>block变量配置在栈还是在堆上都能正确的访问</strong>block变量。</strong>当<strong>block变量配置在堆上时，只要栈上的结构体成员变量</strong>forwarding指向堆上的结构体实例，那么不管是从栈上还是从堆上的__block变量都能正确访问。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/19/16a3578e16ce4ac7?w=1546&h=992&f=png&s=140090" srcset="/img/loading.gif" alt=""></p>
+<p>并且在ARC时期，大多数情况下<strong>编译器知道在合适自动将Block从栈上复制到堆上</strong>，比如<strong>将Block作为返回值时</strong>。而当<strong>向方法或函数的参数中传递Block时，编译器不能判断，需要手动调用copy方法将栈上的Block复制到堆上</strong>，但是apple提供的一些方法已经在内部恰当的地方复制了传递过来的参数，这种情况就不需要再手动复制：</p>
+<ul>
+<li><strong>Cocoa框架中的方法且方法名中含有usingBlock等时</strong>；</li>
+<li><strong>CGD的API</strong></li>
+</ul>
+<p>并且，不管Block配置在何存，用copy方法复制都不会出现问题。但是<strong>将Block从栈上复制到堆上时相当消耗CPU的</strong>。对于已经在堆上的Block调用copy方法，会增加其引用计数。</p>
+<p>并且对使用<strong>block变量的Block从栈复制到堆上时，</strong>block变量也会收到影响：<strong>如果在1个Block中使用<strong>block变量，当该Block从栈复制到堆时，这些</strong>block变量也全部被从栈复制到堆上。并且此时Block持有__block变量。</strong>如果有个Block使用<strong>block变量，在任何一个Block从栈复制到堆时，</strong>block变量都会一并复制到堆上并被该Block持有；当剩下的Block从栈复制到堆时，被复制的Block持有<strong>block变量，<strong>并增加其引用计数</strong>。如果配置在堆上的Block被废弃，它说使用的</strong>block变量也就被释放。这种思考方式同Objective-C内存管理方式相同。即<strong>使用<strong>block变量的Block持有该</strong>block变量，当Block被废弃时，它所持有的__block变量也被废弃</strong>。</p>
+<h1 id="Block捕获对象"><a href="#Block捕获对象" class="headerlink" title="Block捕获对象"></a>Block捕获对象</h1><p>在这里Block捕获的是__block类型的变量val，如果捕获的是Objective-C对象会有什么区别？</p>
+<pre><code class="hljs objectivec"><span class="hljs-keyword">int</span> main() &#123;
+    <span class="hljs-keyword">id</span> arr = [[<span class="hljs-built_in">NSMutableArray</span> alloc] init]; 
+    <span class="hljs-keyword">void</span> (^blk)(<span class="hljs-keyword">id</span>) = [^(<span class="hljs-keyword">id</span> obj) &#123;
+    	[arr addObject:obj];
+	<span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@"arr count: %ld"</span>, [arr count]);
+    &#125; <span class="hljs-keyword">copy</span>];
+
+    blk(<span class="hljs-string">@"Objective-C"</span>);
+    blk(<span class="hljs-string">@"Switf"</span>);
+    blk(<span class="hljs-string">@"C++"</span>);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+<p>值得注意的是：<strong>Block捕获的是objective-C对象，并且调用变更该对象的方法addObject:，所以这里不会产生编译错误。这是因为block捕获的变量值是一个NSMutableArray类的对象，用C语言描述就是捕获NSMutableArray类对象用的结构体实例指针。addObject方法是使用block截获的自动变量arr的值，所以不会有任何问题</strong>，但是如果在Block内部去给捕获的arr对象赋值就会出错:</p>
+<pre><code class="hljs objectivec"><span class="hljs-keyword">int</span> main() &#123;
+    <span class="hljs-keyword">id</span> arr = [[<span class="hljs-built_in">NSMutableArray</span> alloc] init]; 
+    <span class="hljs-keyword">void</span> (^blk)(<span class="hljs-keyword">id</span>) = [^(<span class="hljs-keyword">id</span> obj) &#123;
+        arr = [<span class="hljs-built_in">NSMutableArray</span> arrayWithObjects:obj, <span class="hljs-literal">nil</span>]; <span class="hljs-comment">// error Variable is not assignable (missing __block type specifier)</span>
+        
+        <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@"arr count: %ld"</span>, [arr count]);
+    &#125; <span class="hljs-keyword">copy</span>];
+
+    blk(<span class="hljs-string">@"Objective-C"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+
+<p>之前的代码转换之后的部分源码为：</p>
+<pre><code class="hljs rust"><span class="hljs-keyword">static</span> void __main_block_copy_0(<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_impl_0</span></span>*dst, <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_impl_0</span></span>*src) &#123;
+	_Block_object_assign((void*)&amp;dst-&gt;arr, (void*)src-&gt;arr, <span class="hljs-number">3</span><span class="hljs-comment">/*BLOCK_FIELD_IS_OBJECT*/</span>);
+&#125;
+
+<span class="hljs-keyword">static</span> void __main_block_dispose_0(<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_impl_0</span></span>*src) &#123;
+	_Block_object_dispose((void*)src-&gt;arr, <span class="hljs-number">3</span><span class="hljs-comment">/*BLOCK_FIELD_IS_OBJECT*/</span>);
+&#125;
+
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_desc_0</span></span> &#123;
+  size_t reserved;
+  size_t Block_size;
+  void (*copy)(<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_impl_0</span></span>*, <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_impl_0</span></span>*);
+  void (*dispose)(<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_impl_0</span></span>*);
+&#125; __main_block_desc_0_DATA = &#123;
+	 <span class="hljs-number">0</span>,
+	 sizeof(<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">__main_block_impl_0</span></span>), __main_block_copy_0, __main_block_dispose_0
+	&#125;;</code></pre>
+<p>再回头看看之前<code>__block int val = 10;</code>转换之后的源码中的部分内容：</p>
+<pre><code class="hljs reasonml">static void <span class="hljs-constructor">__main_block_copy_0(<span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span><span class="hljs-operator">*</span><span class="hljs-params">dst</span>, <span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span><span class="hljs-operator">*</span><span class="hljs-params">src</span>)</span> &#123;
+	<span class="hljs-constructor">_Block_object_assign((<span class="hljs-params">void</span><span class="hljs-operator">*</span>)</span>&amp;dst-&gt;<span class="hljs-keyword">val</span>, (void*)src-&gt;<span class="hljs-keyword">val</span>, <span class="hljs-number">8</span><span class="hljs-comment">/*BLOCK_FIELD_IS_BYREF*/</span>);
+&#125;
+
+static void <span class="hljs-constructor">__main_block_dispose_0(<span class="hljs-params">struct</span> <span class="hljs-params">__main_block_impl_0</span><span class="hljs-operator">*</span><span class="hljs-params">src</span>)</span> &#123;
+	<span class="hljs-constructor">_Block_object_dispose((<span class="hljs-params">void</span><span class="hljs-operator">*</span>)</span>src-&gt;<span class="hljs-keyword">val</span>, <span class="hljs-number">8</span><span class="hljs-comment">/*BLOCK_FIELD_IS_BYREF*/</span>);
+&#125;
+
+static <span class="hljs-keyword">struct</span> __main_block_desc_0 &#123;
+  size_t reserved;
+  size_t Block_size;
+  void (*copy)(<span class="hljs-keyword">struct</span> __main_block_impl_0*, <span class="hljs-keyword">struct</span> __main_block_impl_0*);
+  void (*dispose)(<span class="hljs-keyword">struct</span> __main_block_impl_0*);
+&#125;</code></pre>
+
+<p>OBjective-C对象和<strong>block变量对比，发现在Block用的结构体部分基本相同，不同之处在于：Objective-C对象用BLOCK_FIELD_IS_OBJECT标识，</strong>block变量是用BLOCK_FIELD_IS_BYREF标识。即通<strong>过BLOCK_FIELD_IS_OBJECT和BLOCK_FIELD_IS_BYREF参数区分copy函数和dispose函数的对象类型是对象还是__block变量。</strong></p>
+<p>该源码中在<strong>main_block_desc_0 结构体中增加了成员变量copy和dispose，以及作为指针赋值给该成员变量的</strong>main_block_copy_0函数和__main_block_dispose_0函数，这两个函数的作用：</p>
+<ul>
+<li><p><strong>__main_block_copy_0函数中所使用的_Block_object_assign函数将对象类型对象复制给Block用结构体的成员变量arr并持有该对象，调用_Block_object_assign函数相当于retain函数，将对象赋值在对象类型的结构体成员变量中</strong>。</p>
+</li>
+<li><p><strong>__main_block_dispose_0函数中使用_Block_object_dispose函数释放赋值在Block用结构体成员变量arr中的对象。调用_Block_object_dispose函数相当于调用release函数，释放赋值在对象类型结构体中的对象。</strong></p>
+</li>
+</ul>
+<p>这两个函数在Block从栈复制到堆和已经堆上的Block被废弃时调用：</p>
+<ul>
+<li><strong>Block栈上复制到堆上会调用copy函数</strong></li>
+<li><strong>堆上的Block被废弃时会调用dispose函数</strong></li>
+</ul>
+<h1 id="Block使用注意事项"><a href="#Block使用注意事项" class="headerlink" title="Block使用注意事项"></a>Block使用注意事项</h1><p><strong>当Block从栈复制到堆上时，Block会持有捕获的对象</strong>，这样就容易产生循环引用。比如在self中引用了Block，Block优捕获了self，就会引起循环引用，编译器通常能检测出这种循环引用:</p>
+<pre><code class="hljs objectivec"><span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">TestObject</span> : <span class="hljs-title">NSObject</span></span>
+<span class="hljs-keyword">@property</span>(<span class="hljs-keyword">nonatomic</span>, <span class="hljs-keyword">copy</span>) <span class="hljs-keyword">void</span> (^blk)(<span class="hljs-keyword">void</span>);
+<span class="hljs-keyword">@end</span>
+
+<span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">TestObject</span></span>
+- (<span class="hljs-keyword">instancetype</span>)init &#123;
+    <span class="hljs-keyword">self</span> = [<span class="hljs-keyword">super</span> init];
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">self</span>.blk = ^&#123;
+            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@"%@"</span>, <span class="hljs-keyword">self</span>); <span class="hljs-comment">// warning:Capturing 'self' strongly in this block is likely to lead to a retain cycle</span>
+        &#125;;
+    &#125;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;
+&#125;</code></pre>
+
+<p>同样，如果捕获到的是<strong>当前对象的成员变量对象，同样也会造成对self的引用</strong>，比如下面的代码，Block使用了self对象的的成员变量name，实际上就是捕获了self，对于编译器来说name只不过时对象用结构体的成员变量：</p>
+<pre><code class="hljs objectivec"><span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">TestObject</span> : <span class="hljs-title">NSObject</span></span>
+<span class="hljs-keyword">@property</span>(<span class="hljs-keyword">nonatomic</span>, <span class="hljs-keyword">copy</span>) <span class="hljs-keyword">void</span> (^blk)(<span class="hljs-keyword">void</span>);
+<span class="hljs-keyword">@property</span>(<span class="hljs-keyword">nonatomic</span>, <span class="hljs-keyword">copy</span>) <span class="hljs-built_in">NSString</span> *name;
+<span class="hljs-keyword">@end</span>
+
+<span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">TestObject</span></span>
+- (<span class="hljs-keyword">instancetype</span>)init &#123;
+    <span class="hljs-keyword">self</span> = [<span class="hljs-keyword">super</span> init];
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">self</span>.blk = ^&#123;
+            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@"%@"</span>, <span class="hljs-keyword">self</span>.name);
+        &#125;;
+    &#125;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;
+&#125;
+<span class="hljs-keyword">@end</span></code></pre>
+
+<p>解决循环引用的方法有两种：</p>
+<ol>
+<li><p><strong>使用__weak来声明self</strong></p>
+ <pre><code class="hljs objectivec">- (<span class="hljs-keyword">instancetype</span>)init &#123;
+    <span class="hljs-keyword">self</span> = [<span class="hljs-keyword">super</span> init];
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>) &#123;
+        __<span class="hljs-keyword">weak</span> <span class="hljs-keyword">typeof</span>(<span class="hljs-keyword">self</span>) weakSelf = <span class="hljs-keyword">self</span>;
+        <span class="hljs-keyword">self</span>.blk = ^&#123;
+            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@"%@"</span>, weakSelf.name);
+        &#125;;
+    &#125;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;
+&#125;</code></pre>
+</li>
+<li><p><strong>使用临时变量来避免引用self</strong></p>
+ <pre><code class="hljs objectivec">- (<span class="hljs-keyword">instancetype</span>)init &#123;
+    <span class="hljs-keyword">self</span> = [<span class="hljs-keyword">super</span> init];
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>) &#123;
+        <span class="hljs-keyword">id</span> tmp = <span class="hljs-keyword">self</span>.name;
+        <span class="hljs-keyword">self</span>.blk = ^&#123;
+            <span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@"%@"</span>, tmp);
+        &#125;;
+    &#125;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;
+&#125;</code></pre>
+<p>使用__weak修饰符修饰对象之后，在Block中对对象就是弱引用：</p>
+</li>
+</ol>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/19/16a357b1259b5ad7?w=1550&h=576&f=png&s=85083" srcset="/img/loading.gif" alt=""></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li>ibireme <a href="https://blog.ibireme.com/2013/11/27/objc-block/" target="_blank" rel="noopener">objc 中的 block</a></li>
+<li>Draveness <a href="https://draveness.me/block-retain-object" target="_blank" rel="noopener">iOS 中的 block 是如何持有对象的</a></li>
+<li>文档 <a href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Blocks/Articles/00_Introduction.html#//apple_ref/doc/uid/TP40007502-CH1-SW1" target="_blank" rel="noopener">Blocks Programming Topics</a></li>
+<li>《Objective-C高级编程：iOS与OS X多线程和内存管理》</li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/iOS/">iOS</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/06/21/%E4%B8%80%E4%BA%9Btips/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一些tips</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2018/05/17/%E8%B0%88%E8%B0%88Objective-C%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D/">
+                        <span class="hidden-mobile">谈谈Objective-C的对象拷贝</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

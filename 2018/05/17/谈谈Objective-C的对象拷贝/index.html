@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="liumenghua">
+  <meta name="keywords" content="">
+  <title>谈谈Objective-C的对象拷贝 - 大梦的时光机器</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 40vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>大梦的时光机器</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/banner.JPG') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+                谈谈Objective-C的对象拷贝
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2018-05-17 17:50">
+      2018年5月17日 下午
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      19
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <blockquote>
+<p>通常我们在使用@property声明属性的时候，对于<code>NSString</code>、<code>NSArray</code>、 <code>NSDictionary</code>经常会使用<code>copy</code>，以及block的时候也会使用copy，接下来就是和所说copy和mutableCopy。先来思考几个问题：</p>
+</blockquote>
+<ol>
+<li>copy与mutableCopy有什么区别？</li>
+<li>使用copy/mutableCopy和直接赋值有什么区别？</li>
+<li>深浅拷贝的区别？</li>
+<li>自定义对象如何实现NSCopying协议？</li>
+<li>block为什么需要使用copy?</li>
+</ol>
+<h2 id="copy和mutableCopy"><a href="#copy和mutableCopy" class="headerlink" title="copy和mutableCopy"></a>copy和mutableCopy</h2><p>在需要复制对象的时候，会用到NSObject类提供的copy和mutableCopy方法，通过这两个方法即可复制已有对象的副本。最常用的是赋值NSString、NSArray、NSDictionary这一类对象，那么copy和mutableCopy究竟是什么？它们有何区别？</p>
+<h2 id="copy"><a href="#copy" class="headerlink" title="copy"></a>copy</h2><p>copy拷贝出来的对象类型总是不可变类型(例如, <code>NSString</code>, <code>NSArray</code>, <code>NSDictionary</code>等等)</p>
+<h2 id="mutableCopy"><a href="#mutableCopy" class="headerlink" title="mutableCopy"></a>mutableCopy</h2><p>mutableCopy拷贝出来的对象类型总是可变类型(例如, <code>NSMutableString</code>, <code>NSMutableArray</code>, <code>NSMutableDictionary</code>等等)</p>
+<p>代码举例：</p>
+<pre><code class="hljs processing">NSString * <span class="hljs-built_in">str</span> = @<span class="hljs-string">"hello world"</span>;
+[<span class="hljs-built_in">str</span> <span class="hljs-built_in">copy</span>]; <span class="hljs-comment">// 拷贝出内容为hello world的NSString类型的字符串</span>
+[<span class="hljs-built_in">str</span> mutableCopy]; <span class="hljs-comment">// 拷贝出内容为hello world的NSMutableString类型的字符串</span></code></pre>
+<p>打印出类名：<br><img src="https://user-gold-cdn.xitu.io/2018/5/17/1636d7d217e1d3ad?w=1101&h=182&f=jpeg&s=71263" srcset="/img/loading.gif" alt=""></p>
+<p>同样的，对于不可变的NSArray和可变的NSMutableArray来说，这样的关系总是成立的：</p>
+<pre><code class="hljs objectivec">[<span class="hljs-built_in">NSMutableArray</span> <span class="hljs-keyword">copy</span>] =&gt; <span class="hljs-built_in">NSArray</span>
+[<span class="hljs-built_in">NSArray</span> mutableCopy] =&gt; <span class="hljs-built_in">NSMutableArray</span></code></pre>
+
+<hr>
+<h2 id="使用copy-mutableCopy和直接赋值有什么区别？"><a href="#使用copy-mutableCopy和直接赋值有什么区别？" class="headerlink" title="使用copy/mutableCopy和直接赋值有什么区别？"></a>使用copy/mutableCopy和直接赋值有什么区别？</h2><p>先看一个例子</p>
+<pre><code class="hljs objc"><span class="hljs-built_in">NSMutableArray</span> * arr1 = [<span class="hljs-built_in">NSMutableArray</span> array];
+[arr1 addObject:<span class="hljs-string">@"A"</span>];
+
+<span class="hljs-built_in">NSArray</span> * arr2 = [<span class="hljs-built_in">NSArray</span> array];
+arr2 = arr1;
+
+[arr1 addObject:<span class="hljs-string">@"C"</span>];
+
+<span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@"arr1 = %@"</span>, arr1);
+<span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@"arr2 = %@"</span>, arr2);</code></pre>
+<p>这段代码输入如下：<br><img src="https://user-gold-cdn.xitu.io/2018/5/17/1636d7d21845a9b2?w=627&h=152&f=jpeg&s=28569" srcset="/img/loading.gif" alt=""></p>
+<p><code>arr1</code>是可变数组,<code>arr2</code>是一个不可变数组，明明可变数组添加对象在赋值之后，<code>arr2</code>也被影响到了。</p>
+<p>如果将<code>arr2 = arr1</code>修改为如下：</p>
+<pre><code class="hljs objc">arr2 = [arr1 <span class="hljs-keyword">copy</span>];</code></pre>
+<p>然后输出就正常了<br><img src="https://user-gold-cdn.xitu.io/2018/5/17/1636d7d218814ff2?w=600&h=136&f=jpeg&s=27844" srcset="/img/loading.gif" alt=""></p>
+<p>这是为什么呢？</p>
+<p>原因其实是和OC的多态特性有关，表面上<code>arr2</code>是一个<code>NSArray</code>类型的对象，实际上是指向一个<code>NSMutableArray</code>类型的对象，也就是<code>arr1</code>。<br>我们通过打印<code>arr1</code>和<code>arr2</code>两个对象来看就知道了：</p>
+<ul>
+<li><p>在直接赋值的方式下打印：</p>
+<p>  <img src="https://user-gold-cdn.xitu.io/2018/5/17/1636d7d21894a84c?w=466&h=182&f=jpeg&s=22402" srcset="/img/loading.gif" alt=""></p>
+</li>
+<li><p>在使用copy的方式下打印:</p>
+<p>  <img src="https://user-gold-cdn.xitu.io/2018/5/17/1636d7d21874463d?w=512&h=166&f=jpeg&s=22967" srcset="/img/loading.gif" alt=""></p>
+</li>
+</ul>
+<p>一目了然，<strong>直接赋值之后，<code>arr1</code>和<code>arr2</code>完全就是同一个对象，指向同一个地址</strong>，所以赋值之后再给<code>arr1</code>添加对象，打印出的结果肯定也是一样的。而如果使用copy之后赋值，就是两个完全不一样的对象，后续的操作也不会有影响。</p>
+<hr>
+<h2 id="深拷贝-deep-copy-与浅拷贝-shallow-copy-的区别？"><a href="#深拷贝-deep-copy-与浅拷贝-shallow-copy-的区别？" class="headerlink" title="深拷贝(deep copy)与浅拷贝(shallow copy)的区别？"></a>深拷贝(deep copy)与浅拷贝(shallow copy)的区别？</h2><p>首先得清楚什么是深拷贝和浅拷贝？</p>
+<h5 id="深拷贝"><a href="#深拷贝" class="headerlink" title="深拷贝"></a>深拷贝</h5><p>拷贝出来的对象与原对象地址<strong>不一致</strong>，<strong>修改拷贝对象的值对源对象的值没有任何影响。</strong> 深拷贝是直接拷贝整个对象内容到另一块内存中。</p>
+<h5 id="浅拷贝"><a href="#浅拷贝" class="headerlink" title="浅拷贝"></a>浅拷贝</h5><p>拷贝出来的对象与原对象地址<strong>一致</strong>，<strong>修改拷贝对象的值会直接影响源对象的值。</strong></p>
+<p>可以用一句话总结：<strong>浅复制就是指针拷贝；深复制就是内容拷贝</strong></p>
+<p>或许会听过这样的说法:copy都是浅拷贝, mutableCopy都是深拷贝<br>这种浅显的理解是错误的，可以看到之前使用copy的方式下打印出来的对象的地址是不一样的，是深拷贝，这说明用<strong>从一个可变对象copy出一个不可变对象时, 是深拷贝而不是浅拷贝</strong>。</p>
+<p>在Foundation框架中，所有的collectioon类在默认的情况下都执行浅拷贝，也就是说只拷贝容器对象本身，不复制其中的数据。这样做的目的是，容器内的对象未必都能拷贝，而且调用者也未必想在拷贝容器时一并拷贝其中的某个对象。</p>
+<p>不过通常情况下，执行的都是浅拷贝，如果你所写的对象需要深拷贝，那么可以考虑增加一个专门执行深拷贝的方法。</p>
+<hr>
+<h2 id="自定义对象如何实现NSCopying协议"><a href="#自定义对象如何实现NSCopying协议" class="headerlink" title="自定义对象如何实现NSCopying协议"></a>自定义对象如何实现NSCopying协议</h2><p>虽然copy方法是在NSObject中的，如果我们自定义一个类(比如Person)，向该类的对象发送copy消息，会得到如下结果:</p>
+<pre><code class="hljs objc">Person *p = [[Person alloc] init];
+Person *p2 = [p <span class="hljs-keyword">copy</span>];</code></pre>
+<p><img src="https://user-gold-cdn.xitu.io/2018/5/17/1636d7d218332319?w=1119&h=383&f=jpeg&s=203347" srcset="/img/loading.gif" alt=""></p>
+<p>查看苹果官方文档会发现，如果自定义的类要实现copy功能，需要实现<code>copyWithZone</code>方法，（如果想要区分copy和mutableCopy，那么copyWithZone：应该返回不可变副本，而mutableCopyWithZone：应该返回可变副本）。这个时候可以在Person类中添加如下代码:</p>
+<pre><code class="hljs objc"><span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">Person</span></span>
+
+- (<span class="hljs-keyword">instancetype</span>)copyWithZone:(<span class="hljs-built_in">NSZone</span> *)zone &#123;
+    Person *p = [[Person alloc] init];
+    p.age = <span class="hljs-keyword">self</span>.age;
+    p.name = <span class="hljs-keyword">self</span>.name;
+    <span class="hljs-keyword">return</span> p;
+&#125;</code></pre>
+<p>之后就不会报错，能正常的使用copy了。</p>
+<p>但是在苹果官方文档上还说了一个注意事项：</p>
+<blockquote>
+<p>If a subclass inherits NSCopying from its superclass and declares additional instance variables, the subclass has to override copyWithZone: to properly handle its own instance variables, invoking the superclass’s implementation first.</p>
+</blockquote>
+<p>意思是：如果你的类可以产生子类，那么copyWithZone：方法将被继承，子类中也必须重写<code>copyWithZone:</code>方法，并且<strong>要先调用父类的<code>copyWithZone:</code></strong>。</p>
+<p>这个时候在demo中增加一个Person的子类，并增加一个college属性，那么父类Person的<code>copyWithZone:</code>方法需要改为：</p>
+<pre><code class="hljs objectivec">- (<span class="hljs-keyword">instancetype</span>)copyWithZone:(<span class="hljs-built_in">NSZone</span> *)zone &#123;
+    Person *p = [[[<span class="hljs-keyword">self</span> <span class="hljs-keyword">class</span>] allocWithZone:zone] init];
+    p.age = <span class="hljs-keyword">self</span>.age;
+    p.name = <span class="hljs-keyword">self</span>.name;
+    <span class="hljs-keyword">return</span> p;
+&#125;</code></pre>
+<p>同时在子类Student中可以这样实现:</p>
+<pre><code class="hljs objc"><span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">Student</span></span>
+
+- (<span class="hljs-keyword">instancetype</span>)copyWithZone:(<span class="hljs-built_in">NSZone</span> *)zone &#123;
+    Student *stu = [<span class="hljs-keyword">super</span> copyWithZone:zone];
+    <span class="hljs-keyword">if</span> (stu) &#123;
+        stu.college = <span class="hljs-keyword">self</span>.college;
+    &#125;
+    <span class="hljs-keyword">return</span> stu;
+&#125;
+
+<span class="hljs-keyword">@end</span></code></pre>
+<p>如果实现一个类的<code>copyWithZone:</code>方法，而该类的超类也实现了<NSCopying>协议，那么应该先调用超类的copy方法以复制继承来的实例变量，然后加入自己的代码以复制想要添加到该类中的任何附加的实例变量。</p>
+<hr>
+<h2 id="block中为什么要使用copy修饰？"><a href="#block中为什么要使用copy修饰？" class="headerlink" title="block中为什么要使用copy修饰？"></a>block中为什么要使用copy修饰？</h2><p>在使用block作为属性的时候，通常使用的是copy</p>
+<pre><code class="hljs objc"><span class="hljs-keyword">@property</span> (<span class="hljs-keyword">copy</span>) <span class="hljs-keyword">void</span> (^clickBlock)(<span class="hljs-built_in">NSString</span> * name);</code></pre>
+<p>使用copy修饰block其实是从MRC遗留下来的，在MRC时期，作为全局变量的block在初始化时是被存放在栈区的，这样在使用时如果block内有调用外部变量，那么block无法保留其内存，如果在出了block的初始化作用域内使用，就会引起崩溃，使用copy可以将block的内存推入堆中，这样让其拥有保存调用的外部变量的内存的能力。</p>
+<p>在ARC下，对NSStackBLock用<code>strong</code>进行强引用的话，好像会自动对其进行copy一份，变成NSMallocBLock，所以不会crash。在ARC下，其实不使用copy修饰block也是可以的。</p>
+<p>详细的block的实现可以参考唐巧关于block的讲解：<a href="http://blog.devtang.com/2013/07/28/a-look-inside-blocks/" target="_blank" rel="noopener">谈Objective-C block的实现</a></p>
+<hr>
+<h2 id="blog"><a href="#blog" class="headerlink" title="blog"></a>blog</h2><ul>
+<li><a href="https://developer.apple.com/documentation/foundation/nscopying?language=objc" target="_blank" rel="noopener">官方文档</a></li>
+<li><a href="https://blog.csdn.net/enuola/article/details/7801127" target="_blank" rel="noopener">Object-C中对自定义类实现NSCopying协议</a></li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/iOS/">iOS</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/04/19/%E6%8E%A2%E7%B4%A2iOS%E4%B8%ADBlock%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">探索iOS中Block的实现原理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
