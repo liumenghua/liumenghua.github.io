@@ -7,8 +7,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
-  <link rel="icon" href="/img/favicon.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/myfavicon.png">
+  <link rel="icon" href="/img/myfavicon.png">
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -40,7 +40,7 @@
 
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
   </script>
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
@@ -48,11 +48,11 @@
 
 
 <body>
-  <header style="height: 100vh;">
+  <header style="height: 60vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand"
-       href="/">&nbsp;<strong>Fluid</strong>&nbsp;</a>
+       href="/">&nbsp;<strong>MagicCar</strong>&nbsp;</a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
             data-target="#navbarSupportedContent"
@@ -142,22 +142,20 @@
 </nav>
 
     <div class="banner" id="banner" parallax=true
-         style="background: url('/img/default.png') no-repeat center center;
+         style="background: url('/img/banner.JPG') no-repeat center center;
            background-size: cover;">
       <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="An elegant Material-Design theme for Hexo">
+            <span class="h2" id="subtitle" title="正在了不起的程序员，对自己的每一个字节都了如指掌">
+              
+                正在了不起的程序员，对自己的每一个字节都了如指掌
               
             </span>
 
             
           </div>
 
-          
-            <div class="scroll-down-bar">
-              <i class="iconfont icon-arrowdown"></i>
-            </div>
           
         </div>
       </div>
@@ -168,7 +166,7 @@
     
       <div class="container nopadding-x-md">
         <div class="py-5" id="board"
-          style=margin-top:0>
+          >
           
           <div class="container">
             <div class="row">
@@ -179,22 +177,33 @@
   <div class="row mx-auto index-card">
     
     
-    <article class="col-12 col-md-12 mx-auto index-info">
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2021/03/23/NSCache%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" target="_self">
+          <img src="/img/article_header1.jpg" srcset="/img/loading.gif" lazyload alt="NSCache源码阅读">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/08/29/hello-world/" target="_self">
-          Hello World
+        <a href="/2021/03/23/NSCache%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" target="_self">
+          NSCache源码阅读
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/08/29/hello-world/" target="_self">
+        <a href="/2021/03/23/NSCache%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/" target="_self">
           
           
             
           
-          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick
+          NSCache 是一种可变集合，用于临时存储在资源不足时容易被回收的 key-value 键值对。NSCache 具有字典的所有功能，并且还具备如下特性：
+
+内存不足时，NSCache 会自动清理缓存，并且提供了是否需要清理的开关和缓存清理时的回调；
+NSCache 是线程安全的；
+区别于 NSMutableDictionary ，NSCache 不需要对 key 进行拷贝。
+
+在 SDWebIm
         </a>
       </p>
 
@@ -202,12 +211,180 @@ Quick
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-08-29 13:38" pubdate>
-              2021-08-29
+            <time datetime="2021-03-23 14:13" pubdate>
+              2021-03-23
             </time>
           </div>
         
         
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/iOS/">iOS</a>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2020/05/09/%E5%87%A0%E4%B8%AAiOS%E5%BC%80%E5%8F%91%E7%9A%84%E5%B0%8Ftips/" target="_self">
+          <img src="/img/article_header4.jpg" srcset="/img/loading.gif" lazyload alt="几个iOS开发的小tips">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2020/05/09/%E5%87%A0%E4%B8%AAiOS%E5%BC%80%E5%8F%91%E7%9A%84%E5%B0%8Ftips/" target="_self">
+          几个iOS开发的小tips
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2020/05/09/%E5%87%A0%E4%B8%AAiOS%E5%BC%80%E5%8F%91%E7%9A%84%E5%B0%8Ftips/" target="_self">
+          
+          
+            
+          
+          clipsToBounds vs masksToBoundsclipsToBoundsclipsToBounds 决定子视图的显示范围：设置为YES时，子视图超出部分将被剪裁，不会显示；设置为NO则不会剪裁。clipsToBounds的默认值为NO，但是在UIScrollview中为YES。
+比如view2添加到view1上，即view2为view1的subview。
+1234567UIView 
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2020-05-09 14:13" pubdate>
+              2020-05-09
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/iOS/">iOS</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2019/04/19/%E6%8E%A2%E7%B4%A2iOS%E4%B8%ADBlock%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" target="_self">
+          <img src="/img/article_header2.jpg" srcset="/img/loading.gif" lazyload alt="探索iOS中Block的实现原理">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2019/04/19/%E6%8E%A2%E7%B4%A2iOS%E4%B8%ADBlock%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" target="_self">
+          探索iOS中Block的实现原理
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2019/04/19/%E6%8E%A2%E7%B4%A2iOS%E4%B8%ADBlock%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/" target="_self">
+          
+          
+            
+          
+          Block作为Objective-C中闭包的实现在iOS开发中占有非常重要的地位，尤其是作为回调（callback）使用。这篇文章主要记录Block的实现，关于Block的语法可以参考这里：How Do I Declare A Block in Objective-C
+Block的实质Block被称为带有自动变量（局部变量）的匿名函数，Block语法去和C语言的函数非常相似。实际上Block的底层
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2019-04-19 14:12" pubdate>
+              2019-04-19
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/iOS/">iOS</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2018/05/01/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAObjective-C%E4%B8%AD%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D/" target="_self">
+          <img src="/img/article_header3.png" srcset="/img/loading.gif" lazyload alt="深入浅出Objective-C中的对象拷贝">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2018/05/01/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAObjective-C%E4%B8%AD%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D/" target="_self">
+          深入浅出Objective-C中的对象拷贝
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2018/05/01/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAObjective-C%E4%B8%AD%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D/" target="_self">
+          
+          
+            
+          
+          
+通常我们在使用@property声明属性的时候，对于NSString、NSArray、 NSDictionary经常会使用copy，以及block的时候也会使用copy，接下来就是和所说copy和mutableCopy。先来思考几个问题：
+
+
+copy与mutableCopy有什么区别？
+使用copy/mutableCopy和直接赋值有什么区别？
+深浅拷贝的区别？
+自定义对象如何实现NSCopy
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2018-05-01 14:09" pubdate>
+              2018-05-01
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/iOS/">iOS</a>
+            
+              <a href="/tags/ObjC/">ObjC</a>
+            
+          </div>
         
       </div>
     </article>
@@ -317,17 +494,6 @@ Quick
 
 
 
-
-  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12/lib/typed.min.js" ></script>
-  <script>
-    (function (window, document) {
-      var typing = Fluid.plugins.typing;
-      var title = document.getElementById('subtitle').title;
-      
-      typing(title)
-      
-    })(window, document);
-  </script>
 
 
 

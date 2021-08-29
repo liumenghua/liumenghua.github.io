@@ -1,0 +1,472 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/myfavicon.png">
+  <link rel="icon" href="/img/myfavicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+  <title>几个iOS开发的小tips - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.7.2/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.11","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 60vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>MagicCar</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.JPG') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="几个iOS开发的小tips">
+              
+                几个iOS开发的小tips
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2020-05-09 14:13" pubdate>
+        2020年5月9日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      16
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">几个iOS开发的小tips</h1>
+            
+            <div class="markdown-body">
+              <h2 id="clipsToBounds-vs-masksToBounds"><a href="#clipsToBounds-vs-masksToBounds" class="headerlink" title="clipsToBounds vs masksToBounds"></a>clipsToBounds vs masksToBounds</h2><h3 id="clipsToBounds"><a href="#clipsToBounds" class="headerlink" title="clipsToBounds"></a>clipsToBounds</h3><p>clipsToBounds 决定子视图的显示范围：设置为YES时，子视图超出部分将被剪裁，不会显示；设置为NO则不会剪裁。<br>clipsToBounds的默认值为NO，但是在UIScrollview中为YES。</p>
+<p>比如view2添加到view1上，即view2为view1的subview。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-built_in">UIView</span> *view1 = [[<span class="hljs-built_in">UIView</span> alloc] initWithFrame:<span class="hljs-built_in">CGRectMake</span>(<span class="hljs-number">50</span>, <span class="hljs-number">150</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>)];<br>view1.backgroundColor = [<span class="hljs-built_in">UIColor</span> blueColor];<br>[<span class="hljs-keyword">self</span>.view addSubview:view1];<br>    <br><span class="hljs-built_in">UIView</span> *view2 = [[<span class="hljs-built_in">UIView</span> alloc] initWithFrame:<span class="hljs-built_in">CGRectMake</span>(<span class="hljs-number">50</span>, <span class="hljs-number">50</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>)];<br>view2.backgroundColor = [<span class="hljs-built_in">UIColor</span> redColor];<br>[view1 addSubview:view2];<br></code></pre></td></tr></table></figure>
+
+<p>view1的clipsToBounds设置为NO时，view2超出view1的部分将不会剪裁，如图左，红色部分不会被剪裁。</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">view1.clipsToBounds</span> = <span class="hljs-literal">NO</span><span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>view1的clipsToBounds设置为YES时，view2超出view1的部分将会被剪裁，如图右，红色部分被剪掉了。</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">view1.clipsToBounds</span> = <span class="hljs-literal">YES</span><span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://user-gold-cdn.xitu.io/2020/5/9/171f8872d7317d7a?w=1096&h=786&f=png&s=79999" srcset="/img/loading.gif" lazyload alt="clipsToBounds"></p>
+<p>在Apple的<a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/uikit/uicollectionviewdatasourceprefetching/prefetching_collection_view_data?language=objc">Prefetching Collection View Data</a> 示例代码中就是将UICollectionView 的 clipsToBounds 设置为 NO以显示 cell 超出 UICollectionView 时的状态，来观察UICollectionViewCell的生命周期。</p>
+<h3 id="masksToBounds"><a href="#masksToBounds" class="headerlink" title="masksToBounds"></a>masksToBounds</h3><p><code>masksToBounds</code>的功能和<code>clipsToBounds</code>类似，但是<code>clipsToBounds</code>是CALayer的属性，<code>clipsToBounds</code>是UIView新的属性，<code>clipsToBounds</code>会调用<code>maskToBounds</code>方法。</p>
+<p>通常使用在设置cornerRadius不能达到圆角效果的控件上，如UIImageView、UILabel等。</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">imageView.layer.cornerRadius</span> = <span class="hljs-number">5</span>.f<span class="hljs-comment">;</span><br><span class="hljs-attr">imageView.layer.masksToBounds</span> = <span class="hljs-literal">YES</span><span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+<p>需要注意，设置<code>maskToBounds = YES</code>可能会触发离屏渲染。关于可参考<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/72653360">关于iOS离屏渲染的深入研究</a>。</p>
+<h2 id="UITextField-amp-amp-UITextView-输入限制"><a href="#UITextField-amp-amp-UITextView-输入限制" class="headerlink" title="UITextField &amp;&amp; UITextView 输入限制"></a>UITextField &amp;&amp; UITextView 输入限制</h2><p>限制文本输入可以监听<code>UIKeyboardWillChangeFrameNotification</code>通知，在其中判断文字长度。但需要注意的是：<strong>不要把高亮的部分，即联想输入的部分记入到字数统计中，因为这部分不是我们真正要输入的内容</strong>。比如在中文情况下，输入拼音时，还没有选中文字就会被键盘当作字母输入到UITextField/UITextView中，比如可输入字符还剩下1个，此时想打一个“吃”字，输入拼音“chi”，则会将计算的是“chi”三个字符的长度。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (<span class="hljs-keyword">void</span>)textViewDidChange:(<span class="hljs-built_in">UITextView</span> *)textView &#123;<br>    <span class="hljs-keyword">if</span> (textView.text.length &gt; <span class="hljs-keyword">self</span>.maxInputWords &amp;&amp; !textView.markedTextRange) &#123; <span class="hljs-comment">// 防止把高亮的部分计入</span><br>        textView.text = [textView.text substringToIndex:<span class="hljs-keyword">self</span>.maxInputWords];<br>    &#125;<br>    <span class="hljs-comment">// 显示已经输入文字个数</span><br>    <span class="hljs-keyword">self</span>.wordsLabel.text = [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;%lu/%ld&quot;</span>, (<span class="hljs-keyword">long</span>)textView.text.length, (<span class="hljs-keyword">long</span>)<span class="hljs-keyword">self</span>.maxInputWords];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="UITextView-return键隐藏键盘"><a href="#UITextView-return键隐藏键盘" class="headerlink" title="UITextView return键隐藏键盘"></a>UITextView return键隐藏键盘</h2><p>UITextView 不像 UITextfield 一样提供了 <code>textFieldShouldReturn:</code>方法实现，可以通过 UITextViewDelegate 中的<code>textView:shouldChangeTextInRange:replacementText</code>代理方法实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs objc">- (<span class="hljs-built_in">BOOL</span>)textView:(<span class="hljs-built_in">UITextView</span> *)textView shouldChangeTextInRange:(<span class="hljs-built_in">NSRange</span>)range replacementText:(<span class="hljs-built_in">NSString</span> *)text &#123;<br>    <span class="hljs-keyword">if</span> ([text isEqualToString:<span class="hljs-string">@&quot;\n&quot;</span>])&#123; <span class="hljs-comment">// 判断输入的字是否是回车，即按下 return</span><br>        [textView resignFirstResponder];<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NO</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">YES</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h2 id="UISwitch-开关保持原来的状态"><a href="#UISwitch-开关保持原来的状态" class="headerlink" title="UISwitch 开关保持原来的状态"></a>UISwitch 开关保持原来的状态</h2><p>UISwitch在点击时状态即会改变，如果想让它点击时不马上改变状态，而是进行其他操作之后再响应，可以在UISwitch的target方法中这样操作：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs objc">[<span class="hljs-keyword">switch</span> addTarget:<span class="hljs-keyword">self</span> action:<span class="hljs-keyword">@selector</span>(switchAction:) forControlEvents:<span class="hljs-built_in">UIControlEventValueChanged</span>];<br><br>- (<span class="hljs-keyword">void</span>)switchAction:(<span class="hljs-built_in">UISwitch</span> *)sender &#123;<br>		<span class="hljs-comment">// 让开关状态不变</span><br>		[sender setOn:!sender.on animated:<span class="hljs-literal">YES</span>];<br><br>		<span class="hljs-comment">// 其他操作...</span><br><br>		<span class="hljs-comment">// 修改开关状态</span><br>		sender.on = ...;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>注意：<strong>是把animated设置为YES</strong>。原因推测可能是animated有延时。</p>
+<h2 id="UITableView-单选多选实现"><a href="#UITableView-单选多选实现" class="headerlink" title="UITableView 单选多选实现"></a>UITableView 单选多选实现</h2><p>UITableview提供了单选和多选机制，分别是<code>allowsSelection</code>和<code>allowsMultipleSelection</code>属性，但是当你想要在一个TabelView的不同section中分别使用单选和多选（比如第一个section支持单选，第二个 section 支持多选）就需要自己实现了。在 section 不多的情况下，这里提供一种快速的方案：让 UITableview 开启多选，即<code>allowsMultipleSelection=YES</code>，用变量记录单选section中上一次选中的行，在<code>tableView:didSelectRowAtIndexPath</code>中进行判断，如果选择的是不同行，则取消上一次选中。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-keyword">self</span>.tableView.allowsMultipleSelection = <span class="hljs-literal">YES</span>; <span class="hljs-comment">// 允许多选</span><br><br>- (<span class="hljs-keyword">void</span>)tableView:(<span class="hljs-built_in">UITableView</span> *)tableView didSelectRowAtIndexPath:(<span class="hljs-built_in">NSIndexPath</span> *)indexPath &#123;<br>    BBASuggestFeedbackHeaderModel *headerModel;<br><br>    <span class="hljs-keyword">if</span> (indexPath.section == <span class="hljs-number">0</span>) &#123;<br>         <span class="hljs-comment">// 取消上一次选中</span><br>         <span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>.lastSelectedIndex != indexPath.row) &#123; <span class="hljs-comment">// 点击同一个不做处理</span><br>              <span class="hljs-built_in">NSIndexPath</span> *lastIndex = [<span class="hljs-built_in">NSIndexPath</span> indexPathForRow:<span class="hljs-keyword">self</span>.lastSelectedIndex inSection:indexPath.section];<br>              [tableView deselectRowAtIndexPath:lastIndex animated:<span class="hljs-literal">YES</span>];<br>              <span class="hljs-keyword">self</span>.lastSelectedIndex = indexPath.row;<br>         &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>获取选中状态的cell，即可通过<code>indexPathsForSelectedRows</code>获取。</p>
+<h2 id="UICollectionViewCell-高亮和点击态"><a href="#UICollectionViewCell-高亮和点击态" class="headerlink" title="UICollectionViewCell 高亮和点击态"></a>UICollectionViewCell 高亮和点击态</h2><p>UICollectionView不像UITableView一样默认有高亮状态，可以通过设置 UICollectionViewCell 的selectedBackgroundView实现。并且UICollectionView也提供几个高亮的代理方法</p>
+<ul>
+<li><code>collectionView:shouldHighlightItemAtIndexPath:</code></li>
+<li><code>collectionView:didHighlightItemAtIndexPath:</code></li>
+<li><code>collectionView:didUnhighlightItemAtIndexPath:</code></li>
+</ul>
+<p>但是如果这个时候的需求是需要在高亮的时候让cell上的其他子控件也改变alph值，单纯的设置selectedBackgroundView的不能满足。<br>可以通过重写Cell的两个方法<code>setHighlighted:</code>和<code>setSelected:</code>，</p>
+<ul>
+<li><code>setHighlighted:</code> 高亮状态，即按在cell上不松开的效果</li>
+<li><code>setSelected:</code> 选中状态，点击一个cell即选中</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs objc"> - (<span class="hljs-keyword">void</span>)setHighlighted:(<span class="hljs-built_in">BOOL</span>)highlighted &#123;<br>    [<span class="hljs-keyword">super</span> setHighlighted:highlighted];<br>    <br>    <span class="hljs-keyword">if</span> (highlighted) &#123;<br>    	<span class="hljs-comment">// 高亮状态下的子控件颜色设置</span><br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>    	<span class="hljs-comment">// 普通状态的子控件颜色设置</span><br>    &#125;<br>&#125;<br><br> - (<span class="hljs-keyword">void</span>)setSelected:(<span class="hljs-built_in">BOOL</span>)selected &#123;<br>    [<span class="hljs-keyword">super</span> setSelected:selected];<br><br>    <span class="hljs-keyword">if</span> (selected) &#123;<br>   	 	<span class="hljs-comment">// 高亮状态下的子控件颜色设置</span><br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-comment">// 普通状态的子控件颜色设置</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="Cell上UIImageView的图片不显示"><a href="#Cell上UIImageView的图片不显示" class="headerlink" title="Cell上UIImageView的图片不显示"></a>Cell上UIImageView的图片不显示</h2><p>如果cell上的UIImageView在不同情况下会size不同，圆角不同，cell复用是需要更新UIImageView的约束。遇到UIImageView中图片不显示的情况，可以从以下几个方面排查：</p>
+<ul>
+<li>imageView 的 frame 是否设置正确，比如采用<code>initWithImage:</code>方法初始化时，会根据图片的大小来设置imageView的frame可以不用初始化尺寸，但是大小不可控。</li>
+<li>image view 的 hidden 是否设置</li>
+<li>是否添加到父 view 上</li>
+<li>是否设置 imageView 的 image</li>
+<li>imageView 的 image 是否是从网络获取的，是否采用占位图片</li>
+<li>imageView是否在设置圆角，圆角是否过大，比如ImageView的size为20 * 20，而圆角大小为40，则不会显示。</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/iOS/">iOS</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/03/23/NSCache%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">NSCache源码阅读</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/04/19/%E6%8E%A2%E7%B4%A2iOS%E4%B8%ADBlock%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/">
+                        <span class="hidden-mobile">探索iOS中Block的实现原理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.3/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.1/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" ></script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
